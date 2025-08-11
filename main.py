@@ -25,7 +25,9 @@ def load_config():
 
 
 async def handle_barge_in(decoded, twilio_ws, streamsid):
-    pass
+    if decoded["type"] == "UserStartedSpeaking":
+        clear_message = {"event": "clear", "streamsid": streamsid}
+        await twilio_ws.send(json.dumps(clear_message))
 
 
 async def handle_text_message(decoded, twilio_ws, sts_ws, streamsid):
