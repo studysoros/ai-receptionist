@@ -33,11 +33,32 @@ async def handle_text_message(decoded, twilio_ws, sts_ws, streamsid):
 
 
 async def sts_sender(sts_ws, audio_queue):
-    pass
+    print("sts_sender started")
+    while True:
+        chunk = await audio_queue.get()
+        await sts_ws.send(chunk)
 
 
 async def sts_receiver(sts_ws, twilio_ws, streamsid_queue):
-    pass
+    print("sts_receiver started")
+    streamsid = await streamsid_queue.get()
+
+    async for message in sts_ws:
+        if type(message) is str:
+            print(message)
+            decoded = json.loads(message)
+            await handle_text_message(decoded, twilio_ws, sts_ws, streamsid)
+            continue
+
+        raw_mulaw = message
+
+        media_message = {
+            "event": "media",
+            "streamsSid": streamsid,
+            "media": {"payload": base64.b64encode(raw_mulaw).decode("ascii")},
+        }
+
+        await twilio_ws.send(json.dumps(media_message))
 
 
 async def twilio_receiver(twilio_ws, audio_queue, streamsid_queue):
