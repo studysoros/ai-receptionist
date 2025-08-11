@@ -31,7 +31,9 @@ async def handle_barge_in(decoded, twilio_ws, streamsid):
 
 
 async def handle_text_message(decoded, twilio_ws, sts_ws, streamsid):
-    pass
+    await handle_barge_in(decoded, twilio_ws, streamsid)
+
+    # TODO: handle function calling
 
 
 async def sts_sender(sts_ws, audio_queue):
